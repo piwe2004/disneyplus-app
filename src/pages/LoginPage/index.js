@@ -1,15 +1,26 @@
-import React from 'react'
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
 const LoginPage = () => {
   return (
-    <div>
-    
-    </div>
-  )
-}
+    <Container>
+      <Content>
+        <Center>
+          <LogoOne src="/images/cta-logo-one.svg" alt="logo-one" />
+          <SignUpLink>지금 가입</SignUpLink>
+          <Description>
+            영화에 대한 프리미어 액세스를 얻으십시오. 디즈니 플러스 가격은 다음
+            주부터 1000원 인상됩니다.
+          </Description>
+          <LogoTwo src="images/cta-logo-two.png" alt="logo-two" />
+        </Center>
+        <BgImage />
+      </Content>
+    </Container>
+  );
+};
 
-export default LoginPage
+export default LoginPage;
 
 const BgImage = styled.div`
   height: 100%;
@@ -72,6 +83,7 @@ const SignUpLink = styled.a`
   padding: 16.5px 0;
   border: 1px solid transparent;
   border-radius: 4px;
+  cursor: pointer;
   &:hover {
     background-color: #0483ee;
   }

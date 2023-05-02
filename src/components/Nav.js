@@ -1,3 +1,4 @@
+import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -7,6 +8,27 @@ function Nav() {
   const { pathname } = useLocation();
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
+  const initialUserData = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user")) 
+    : {}
+  const [userData, setUserData] = useState(initialUserData)
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user)=>{
+      if(user){
+        if(pathname === "/"){
+          navigate("/main");
+        }
+      }else{
+        navigate("/");
+      }
+    })
+  
+  }, [auth, navigate, pathname])
+  
+  
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -28,6 +50,27 @@ function Nav() {
     navigate(`/search?q=${e.target.value}`)
   }
 
+  const handleAuth = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+          setUserData(result.user)
+          localStorage.setItem("user", JSON.stringify(result.user))
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
+  const handleSignOut = () => {
+    signOut(auth).then(()=>{
+      setUserData({});
+      navigate("/")
+      localStorage.removeItem("user")
+    }).catch((error)=>{
+      console.log(error)
+    })
+  }
+
   return (
     <NavWrapper handleShow={handleShow}>
       <Logo>
@@ -38,14 +81,23 @@ function Nav() {
         />
       </Logo>
       {pathname === "/" ? (
-        <Login></Login>
+        <Login onClick={()=>handleAuth()}>Login</Login>
       ) : (
-        <Input 
-          value={searchValue}
-          onChange={(e)=>handleChange(e)}
-          className="nav__input"
-          type="text"
-          placeholder="검색해 주세요" />
+        <>
+          <Input 
+            value={searchValue}
+            onChange={(e)=>handleChange(e)}
+            className="nav__input"
+            type="text"
+            placeholder="검색해 주세요"
+          />
+          <SignOut>
+            <UserImg src={userData.photoURL} alt={userData.dispayName} />
+            <DropDown>
+              <span onClick={()=> handleSignOut()}>Sign Out</span>
+            </DropDown>
+          </SignOut>
+        </>
       )}
     </NavWrapper>
   );
@@ -87,7 +139,6 @@ const SignOut = styled.div`
 const UserImg = styled.img`
   border-radius: 50%;
   width: 100%;
-  height: 100%;
 `;
 
 const Login = styled.a`
